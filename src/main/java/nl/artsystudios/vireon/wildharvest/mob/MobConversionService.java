@@ -167,21 +167,21 @@ public final class MobConversionService {
         if (entity instanceof Zombie zombie) {
             zombie.setAdult();
             zombie.setShouldBurnInDay(!conv.isSunImmune());
-            AttributeInstance reinforce = entity.getAttribute(Attribute.ZOMBIE_SPAWN_REINFORCEMENTS);
+            AttributeInstance reinforce = entity.getAttribute(Attribute.SPAWN_REINFORCEMENTS);
             if (reinforce != null) reinforce.setBaseValue(0.0);
         }
     }
 
     private void applyAttributes(LivingEntity entity, MobConversion conv) {
-        AttributeInstance maxHealth = entity.getAttribute(Attribute.GENERIC_MAX_HEALTH);
+        AttributeInstance maxHealth = entity.getAttribute(Attribute.MAX_HEALTH);
         if (maxHealth != null) {
             maxHealth.setBaseValue(conv.getHealth());
             entity.setHealth(Math.min(conv.getHealth(), maxHealth.getValue()));
         }
-        AttributeInstance attack = entity.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE);
+        AttributeInstance attack = entity.getAttribute(Attribute.ATTACK_DAMAGE);
         if (attack != null) attack.setBaseValue(conv.getDamage());
 
-        AttributeInstance speed = entity.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED);
+        AttributeInstance speed = entity.getAttribute(Attribute.MOVEMENT_SPEED);
         if (speed != null) speed.setBaseValue(speed.getBaseValue() * conv.getSpeedMultiplier());
     }
 
