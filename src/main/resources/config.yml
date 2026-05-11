@@ -7,24 +7,60 @@
 # Enable verbose debug logging in console.
 debug: false
 
-# Language code for plugin messages. Only "en" is shipped in 0.1.0.
+# Language code for plugin messages. Only "en" is shipped today.
 language: en
 
 # ─── Mob conversion ──────────────────────────────────────────
 # Master switch for the wildlife replacement system.
-# (No conversions are wired up yet in 0.1.0 — this is scaffolding.)
 mobs:
   enabled: true
 
-  # Per-mob conversion mapping arrives in 0.2.0:
-  # conversions:
-  #   ZOMBIE:
-  #     animal: brown_bear
-  #     sun-immune: true
-  #     drops:
-  #       - { item: vireon:bear_meat, min: 2, max: 5 }
-  #       - { item: vireon:bear_hide, min: 1, max: 2 }
-  #       - { item: vireon:bear_claw, min: 0, max: 3, chance: 0.4 }
+  # When true, mobs that naturally spawn (and from spawners) get replaced
+  # automatically. Plugin/command/custom-spawned mobs are NEVER auto-converted
+  # so other plugins keep working — use /vireon spawn <id> if you want one.
+  auto-convert-natural: true
+
+  # Each entry below maps a vanilla EntityType to a custom "wildlife" mob.
+  # The internal entity stays vanilla (so AI, pathfinding, spawning rules
+  # all keep working) but its name, attributes, drops, and burning behaviour
+  # are overridden.
+  conversions:
+
+    ZOMBIE:
+      id: brown_bear
+      display-name: "&6Brown Bear"
+      sun-immune: true
+      health: 40.0          # base HP (vanilla zombie = 20)
+      damage: 7.0           # melee damage (vanilla zombie = 3)
+      speed-multiplier: 1.15
+      suppress-vanilla-drops: true
+      drops:
+        - item: BEEF
+          id: bear_meat_raw
+          name: "&fRaw Bear Meat"
+          lore:
+            - "&7Hearty, gamey, stringy."
+            - "&7Cook it over a fire."
+          min: 2
+          max: 5
+          chance: 1.0
+        - item: LEATHER
+          id: bear_hide
+          name: "&fBear Hide"
+          lore:
+            - "&7Thick. Rugged. Useful."
+          min: 1
+          max: 2
+          chance: 1.0
+        - item: BONE
+          id: bear_claw
+          name: "&fBear Claw"
+          lore:
+            - "&7Curved and razor-sharp."
+            - "&7A trophy worth keeping."
+          min: 0
+          max: 3
+          chance: 0.4
 
 # ─── Resource pack ───────────────────────────────────────────
 # Auto-host the generated resource pack via a built-in HTTP server.
@@ -33,7 +69,6 @@ resource-pack:
   enabled: false
   host: 0.0.0.0
   port: 8200
-  # Public address players will see (set to your server's public IP/hostname).
   public-address: ""
   required: true
   prompt: "&aPlease accept the Vireon resource pack to see custom wildlife."
