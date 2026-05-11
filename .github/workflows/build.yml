@@ -1,0 +1,46 @@
+name: Build plugin
+
+# Compile the plugin on every push and pull request.
+# The resulting .jar is uploaded as a workflow artifact you can download
+# from the Actions tab — no local Java/Maven needed.
+
+on:
+  push:
+    branches: [main, master, develop]
+  pull_request:
+    branches: [main, master]
+  workflow_dispatch:   # lets you trigger a manual build from the Actions tab
+
+jobs:
+  build:
+    name: Build with Maven (Java 21)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21 (Temurin)
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+
+      - name: Build with Maven
+        run: mvn --batch-mode --no-transfer-progress clean package
+
+      - name: Read project version
+        id: meta
+        run: |
+          VERSION=$(mvn -q -Dexec.executable=echo -Dexec.args='${project.version}' --non-recursive exec:exec)
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "Built version: $VERSION"
+
+      - name: Upload jar artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: VireonWildHarvest-${{ steps.meta.outputs.version }}
+          path: target/VireonWildHarvest-*.jar
+          if-no-files-found: error
+          retention-days: 30

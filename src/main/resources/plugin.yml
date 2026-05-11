@@ -1,0 +1,24 @@
+name: VireonWildHarvest
+version: '${project.version}'
+main: nl.artsystudios.vireon.wildharvest.VireonWildHarvest
+api-version: '1.21'
+description: First entry in the Vireon plugin series — realistic wildlife replacement for Minecraft mobs.
+author: ArtsyStudios
+website: https://artsystudios.nl
+load: POSTWORLD
+prefix: Vireon
+
+commands:
+  vireon:
+    description: Main Vireon Wild Harvest admin command.
+    usage: /vireon <subcommand>
+    aliases: [vwh, wildharvest]
+    permission: vireon.admin
+
+permissions:
+  vireon.admin:
+    description: Full access to all Vireon admin commands.
+    default: op
+  vireon.use:
+    description: Use any player-facing Vireon features (none yet in 0.1.0).
+    default: true

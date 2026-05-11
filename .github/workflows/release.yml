@@ -1,0 +1,45 @@
+name: Release
+
+# When you push a tag like v0.1.0 or v0.2.0, this workflow builds the plugin
+# and attaches the .jar to a GitHub Release automatically.
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write   # required so the workflow can create releases
+
+jobs:
+  release:
+    name: Build and publish release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21 (Temurin)
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+
+      - name: Build with Maven
+        run: mvn --batch-mode --no-transfer-progress clean package
+
+      - name: Read project version
+        id: meta
+        run: |
+          VERSION=$(mvn -q -Dexec.executable=echo -Dexec.args='${project.version}' --non-recursive exec:exec)
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: Vireon Wild Harvest ${{ github.ref_name }}
+          generate_release_notes: true
+          files: |
+            target/VireonWildHarvest-*.jar

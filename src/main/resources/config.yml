@@ -1,0 +1,39 @@
+# ─────────────────────────────────────────────────────────────
+#  Vireon Wild Harvest — configuration
+#  Part of the Vireon plugin series by ArtsyStudios
+#  https://artsystudios.nl
+# ─────────────────────────────────────────────────────────────
+
+# Enable verbose debug logging in console.
+debug: false
+
+# Language code for plugin messages. Only "en" is shipped in 0.1.0.
+language: en
+
+# ─── Mob conversion ──────────────────────────────────────────
+# Master switch for the wildlife replacement system.
+# (No conversions are wired up yet in 0.1.0 — this is scaffolding.)
+mobs:
+  enabled: true
+
+  # Per-mob conversion mapping arrives in 0.2.0:
+  # conversions:
+  #   ZOMBIE:
+  #     animal: brown_bear
+  #     sun-immune: true
+  #     drops:
+  #       - { item: vireon:bear_meat, min: 2, max: 5 }
+  #       - { item: vireon:bear_hide, min: 1, max: 2 }
+  #       - { item: vireon:bear_claw, min: 0, max: 3, chance: 0.4 }
+
+# ─── Resource pack ───────────────────────────────────────────
+# Auto-host the generated resource pack via a built-in HTTP server.
+# (Activated in 0.3.0 when Vireon Forge ships.)
+resource-pack:
+  enabled: false
+  host: 0.0.0.0
+  port: 8200
+  # Public address players will see (set to your server's public IP/hostname).
+  public-address: ""
+  required: true
+  prompt: "&aPlease accept the Vireon resource pack to see custom wildlife."
