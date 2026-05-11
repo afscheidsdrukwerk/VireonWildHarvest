@@ -1,9 +1,7 @@
 package nl.artsystudios.vireon.wildharvest.command;
 
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.format.TextDecoration;
 import nl.artsystudios.vireon.wildharvest.VireonWildHarvest;
+import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -19,10 +17,13 @@ import java.util.Locale;
 
 /**
  * Root /vireon command and tab completer.
- * Subcommand surface intentionally minimal in 0.1.0 — just enough to prove
- * the foundation is wired up correctly.
+ * Uses Bukkit's classic ChatColor so the plugin works on Spigot, Paper, and
+ * any CraftBukkit fork without depending on Adventure being on the classpath.
  */
 public class VireonCommand implements CommandExecutor, TabCompleter {
+
+    private static final String PREFIX =
+            ChatColor.DARK_GRAY + "[" + ChatColor.GREEN.toString() + ChatColor.BOLD + "Vireon" + ChatColor.DARK_GRAY + "] " + ChatColor.RESET;
 
     private static final List<String> SUBCOMMANDS = Arrays.asList("version", "reload", "help");
 
@@ -42,47 +43,35 @@ public class VireonCommand implements CommandExecutor, TabCompleter {
             case "version" -> sendVersion(sender);
             case "reload"  -> handleReload(sender);
             case "help"    -> sendHelp(sender);
-            default        -> sender.sendMessage(prefix()
-                    .append(Component.text("Unknown subcommand. Try /vireon help", NamedTextColor.RED)));
+            default        -> sender.sendMessage(PREFIX + ChatColor.RED + "Unknown subcommand. Try /vireon help");
         }
         return true;
     }
 
     private void handleReload(CommandSender sender) {
         if (!sender.hasPermission("vireon.admin")) {
-            sender.sendMessage(prefix().append(Component.text("You do not have permission.", NamedTextColor.RED)));
+            sender.sendMessage(PREFIX + ChatColor.RED + "You do not have permission.");
             return;
         }
         long start = System.currentTimeMillis();
         plugin.reloadConfig();
         plugin.getConfigManager().reload();
         long elapsed = System.currentTimeMillis() - start;
-        sender.sendMessage(prefix().append(Component.text("Configuration reloaded in " + elapsed + "ms.", NamedTextColor.GREEN)));
+        sender.sendMessage(PREFIX + ChatColor.GREEN + "Configuration reloaded in " + elapsed + "ms.");
     }
 
     private void sendVersion(CommandSender sender) {
-        sender.sendMessage(prefix().append(Component.text(
-                "Vireon Wild Harvest v" + plugin.getPluginMeta().getVersion(), NamedTextColor.AQUA)));
-        sender.sendMessage(prefix().append(Component.text(
-                "Part of the Vireon plugin series by ArtsyStudios.", NamedTextColor.GRAY)));
+        sender.sendMessage(PREFIX + ChatColor.AQUA + "Vireon Wild Harvest v" + plugin.getDescription().getVersion());
+        sender.sendMessage(PREFIX + ChatColor.GRAY + "Part of the Vireon plugin series by ArtsyStudios.");
     }
 
     private void sendHelp(CommandSender sender) {
-        sender.sendMessage(Component.empty());
-        sender.sendMessage(Component.text(" Vireon Wild Harvest", NamedTextColor.GREEN, TextDecoration.BOLD));
-        sender.sendMessage(Component.text("   /vireon version", NamedTextColor.AQUA)
-                .append(Component.text(" — show plugin version", NamedTextColor.GRAY)));
-        sender.sendMessage(Component.text("   /vireon reload", NamedTextColor.AQUA)
-                .append(Component.text(" — reload configuration", NamedTextColor.GRAY)));
-        sender.sendMessage(Component.text("   /vireon help", NamedTextColor.AQUA)
-                .append(Component.text(" — show this help", NamedTextColor.GRAY)));
-        sender.sendMessage(Component.empty());
-    }
-
-    private Component prefix() {
-        return Component.text("[", NamedTextColor.DARK_GRAY)
-                .append(Component.text("Vireon", NamedTextColor.GREEN, TextDecoration.BOLD))
-                .append(Component.text("] ", NamedTextColor.DARK_GRAY));
+        sender.sendMessage("");
+        sender.sendMessage(" " + ChatColor.GREEN + ChatColor.BOLD + "Vireon Wild Harvest");
+        sender.sendMessage("   " + ChatColor.AQUA + "/vireon version " + ChatColor.GRAY + "- show plugin version");
+        sender.sendMessage("   " + ChatColor.AQUA + "/vireon reload  " + ChatColor.GRAY + "- reload configuration");
+        sender.sendMessage("   " + ChatColor.AQUA + "/vireon help    " + ChatColor.GRAY + "- show this help");
+        sender.sendMessage("");
     }
 
     @Override

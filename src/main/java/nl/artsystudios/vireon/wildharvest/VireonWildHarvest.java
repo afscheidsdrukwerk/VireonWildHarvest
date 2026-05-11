@@ -9,7 +9,7 @@ import org.bukkit.plugin.java.JavaPlugin;
  * Vireon Wild Harvest — entry point.
  *
  * <p>Part of the Vireon plugin series by ArtsyStudios.
- * This is the 0.1.0 foundation build: command framework, config manager,
+ * This is the 0.1.1 foundation build: command framework, config manager,
  * lifecycle hooks. The realistic-wildlife mob conversion arrives in 0.2.0
  * and the Blockbench model loader (Vireon Forge) in 0.3.0.</p>
  */
@@ -29,7 +29,7 @@ public final class VireonWildHarvest extends JavaPlugin {
         registerCommands();
 
         getLogger().info("───────────────────────────────");
-        getLogger().info(" Vireon Wild Harvest v" + getPluginMeta().getVersion());
+        getLogger().info(" Vireon Wild Harvest v" + getDescription().getVersion());
         getLogger().info(" ArtsyStudios — vireon series");
         getLogger().info(" Foundation ready.");
         getLogger().info(" Mob conversion arrives in v0.2.0.");
