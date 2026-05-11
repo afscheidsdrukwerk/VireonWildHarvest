@@ -11,27 +11,18 @@ debug: false
 language: en
 
 # ─── Mob conversion ──────────────────────────────────────────
-# Master switch for the wildlife replacement system.
 mobs:
   enabled: true
-
-  # When true, mobs that naturally spawn (and from spawners) get replaced
-  # automatically. Plugin/command/custom-spawned mobs are NEVER auto-converted
-  # so other plugins keep working — use /vireon spawn <id> if you want one.
   auto-convert-natural: true
 
-  # Each entry below maps a vanilla EntityType to a custom "wildlife" mob.
-  # The internal entity stays vanilla (so AI, pathfinding, spawning rules
-  # all keep working) but its name, attributes, drops, and burning behaviour
-  # are overridden.
   conversions:
 
     ZOMBIE:
       id: brown_bear
       display-name: "&6Brown Bear"
       sun-immune: true
-      health: 40.0          # base HP (vanilla zombie = 20)
-      damage: 7.0           # melee damage (vanilla zombie = 3)
+      health: 40.0
+      damage: 7.0
       speed-multiplier: 1.15
       suppress-vanilla-drops: true
       drops:
@@ -62,13 +53,38 @@ mobs:
           max: 3
           chance: 0.4
 
-# ─── Resource pack ───────────────────────────────────────────
+# ─── Resource pack (Vireon Forge) ────────────────────────────
 # Auto-host the generated resource pack via a built-in HTTP server.
-# (Activated in 0.3.0 when Vireon Forge ships.)
+#
+# How it works:
+#  1. Plugin scans /plugins/VireonWildHarvest/forge/ for model folders.
+#  2. Each folder (named after a drop's id) should contain:
+#       - model.json   : Blockbench export (File → Export → Generic Model — Item)
+#       - texture.png  : the model's PNG texture
+#     A placeholder magenta-checker model is auto-created the first time
+#     so the plugin works out of the box without crashes.
+#  3. The plugin builds the pack zip, hashes it, and serves it over HTTP
+#     on the port below.
+#  4. Joining players auto-download it. Reload with /vireon forge reload.
 resource-pack:
-  enabled: false
+  enabled: true
+
+  # Bind address. 0.0.0.0 = listen on every interface (recommended).
   host: 0.0.0.0
   port: 8200
+
+  # IMPORTANT — what your players' clients will use to fetch the pack.
+  # Must be reachable from the public internet (or your players' LAN, if
+  # you're not running publicly). Example values:
+  #   "play.myserver.com"        → http://play.myserver.com:8200/vireon-pack.zip
+  #   "12.34.56.78:8200"         → http://12.34.56.78:8200/vireon-pack.zip
+  #   "http://my-cdn.com/files"  → http://my-cdn.com/files/vireon-pack.zip
+  # If left blank, the plugin still builds the pack but does NOT send it to
+  # players — fine for local testing without exposing a port.
   public-address: ""
+
+  # Kick players who refuse the pack.
   required: true
+
+  # Prompt text players see in the accept dialog. & color codes work.
   prompt: "&aPlease accept the Vireon resource pack to see custom wildlife."

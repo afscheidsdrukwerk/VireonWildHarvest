@@ -28,7 +28,8 @@ import java.util.Optional;
  */
 public final class VireonCommand implements CommandExecutor, TabCompleter {
 
-    private static final List<String> SUBCOMMANDS = Arrays.asList("version", "reload", "list", "spawn", "help");
+    private static final List<String> SUBCOMMANDS = Arrays.asList("version", "reload", "list", "spawn", "forge", "help");
+    private static final List<String> FORGE_SUBCOMMANDS = Arrays.asList("status", "reload");
 
     private final VireonWildHarvest plugin;
 
@@ -47,11 +48,65 @@ public final class VireonCommand implements CommandExecutor, TabCompleter {
             case "reload"  -> handleReload(sender);
             case "list"    -> handleList(sender);
             case "spawn"   -> handleSpawn(sender, args);
+            case "forge"   -> handleForge(sender, args);
             case "help"    -> sendHelp(sender);
             default        -> sender.sendMessage(prefix()
                     .append(Component.text("Unknown subcommand. Try /vireon help", NamedTextColor.RED)));
         }
         return true;
+    }
+
+    private void handleForge(CommandSender sender, String[] args) {
+        if (!sender.hasPermission("vireon.admin")) {
+            sender.sendMessage(prefix().append(Component.text("You do not have permission.", NamedTextColor.RED)));
+            return;
+        }
+        if (args.length < 2) {
+            sender.sendMessage(prefix().append(Component.text("Usage: /vireon forge <status|reload>", NamedTextColor.YELLOW)));
+            return;
+        }
+        var forge = plugin.getForgeService();
+        if (forge == null) {
+            sender.sendMessage(prefix().append(Component.text("Forge service is not available.", NamedTextColor.RED)));
+            return;
+        }
+        switch (args[1].toLowerCase(Locale.ROOT)) {
+            case "status" -> {
+                sender.sendMessage(Component.empty());
+                sender.sendMessage(Component.text(" Vireon Forge status", NamedTextColor.GREEN, TextDecoration.BOLD));
+                sender.sendMessage(Component.text("   hosting: ", NamedTextColor.GRAY)
+                        .append(Component.text(forge.isHosting() ? "ON" : "OFF",
+                                forge.isHosting() ? NamedTextColor.GREEN : NamedTextColor.RED)));
+                sender.sendMessage(Component.text("   pack:    ", NamedTextColor.GRAY)
+                        .append(Component.text(forge.getPackFile().getName(), NamedTextColor.AQUA))
+                        .append(Component.text(" (" + forge.getPackFile().length() + " bytes)", NamedTextColor.DARK_GRAY)));
+                String url = forge.getPublicPackUrl();
+                sender.sendMessage(Component.text("   url:     ", NamedTextColor.GRAY)
+                        .append(Component.text(url != null ? url : "(public-address not configured)",
+                                url != null ? NamedTextColor.AQUA : NamedTextColor.YELLOW)));
+                String hash = forge.getPackHash();
+                sender.sendMessage(Component.text("   sha1:    ", NamedTextColor.GRAY)
+                        .append(Component.text(hash != null ? hash.substring(0, Math.min(16, hash.length())) + "…" : "n/a", NamedTextColor.DARK_GRAY)));
+                sender.sendMessage(Component.text("   models:  ", NamedTextColor.GRAY)
+                        .append(Component.text(String.valueOf(forge.getModelRegistry().snapshot().size()), NamedTextColor.AQUA))
+                        .append(Component.text(" registered", NamedTextColor.GRAY)));
+                sender.sendMessage(Component.empty());
+            }
+            case "reload" -> {
+                long t0 = System.currentTimeMillis();
+                forge.reload();
+                long dt = System.currentTimeMillis() - t0;
+                sender.sendMessage(prefix().append(Component.text(
+                        "Vireon Forge rebuilt in " + dt + "ms.", NamedTextColor.GREEN)));
+                String url = forge.getPublicPackUrl();
+                if (url != null) {
+                    sender.sendMessage(prefix().append(Component.text(
+                            "Players will receive the new pack on next join.", NamedTextColor.GRAY)));
+                }
+            }
+            default -> sender.sendMessage(prefix().append(Component.text(
+                    "Unknown forge subcommand. Try status or reload.", NamedTextColor.RED)));
+        }
     }
 
     // ─── Subcommands ───────────────────────────────────────────
@@ -157,6 +212,8 @@ public final class VireonCommand implements CommandExecutor, TabCompleter {
         sender.sendMessage(line("/vireon reload",           "reload configuration"));
         sender.sendMessage(line("/vireon list",             "list registered conversions"));
         sender.sendMessage(line("/vireon spawn <id> [n]",   "spawn a converted mob at your target"));
+        sender.sendMessage(line("/vireon forge status",     "show resource pack host status"));
+        sender.sendMessage(line("/vireon forge reload",     "rebuild + re-host the resource pack"));
         sender.sendMessage(line("/vireon help",             "show this help"));
         sender.sendMessage(Component.empty());
     }
@@ -190,6 +247,14 @@ public final class VireonCommand implements CommandExecutor, TabCompleter {
             List<String> out = new ArrayList<>();
             for (MobConversion c : plugin.getMobConversionService().all()) {
                 if (c.getId().startsWith(prefix)) out.add(c.getId());
+            }
+            return out;
+        }
+        if (args.length == 2 && args[0].equalsIgnoreCase("forge")) {
+            String prefix = args[1].toLowerCase(Locale.ROOT);
+            List<String> out = new ArrayList<>();
+            for (String sub : FORGE_SUBCOMMANDS) {
+                if (sub.startsWith(prefix)) out.add(sub);
             }
             return out;
         }

@@ -221,6 +221,13 @@ public final class MobConversionService {
                 }
                 meta.lore(lore);
             }
+
+            // Apply Vireon Forge CustomModelData if a model is registered for this item.
+            if (plugin.getForgeService() != null) {
+                Integer cmd = plugin.getForgeService().getModelRegistry().get(drop.getItemId());
+                if (cmd != null) meta.setCustomModelData(cmd);
+            }
+
             meta.getPersistentDataContainer().set(itemKey, PersistentDataType.STRING, drop.getItemId());
             stack.setItemMeta(meta);
         }
