@@ -11,6 +11,11 @@ on:
 permissions:
   contents: write   # required so the workflow can create releases
 
+# Force JavaScript actions (checkout, setup-java) to run on Node 24
+# now that GitHub has begun enforcing the Node 20 deprecation.
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
 jobs:
   release:
     name: Build and publish release
@@ -33,7 +38,7 @@ jobs:
       - name: Read project version
         id: meta
         run: |
-          VERSION=$(mvn -q -Dexec.executable=echo -Dexec.args='${project.version}' --non-recursive exec:exec)
+          VERSION=$(grep -m 1 '<version>' pom.xml | sed -E 's|.*<version>([^<]+)</version>.*|\1|')
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Publish GitHub Release

@@ -11,6 +11,11 @@ on:
     branches: [main, master]
   workflow_dispatch:   # lets you trigger a manual build from the Actions tab
 
+# Force JavaScript actions (checkout, setup-java) to run on Node 24
+# now that GitHub has begun enforcing the Node 20 deprecation.
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
 jobs:
   build:
     name: Build with Maven (Java 21)
@@ -33,7 +38,7 @@ jobs:
       - name: Read project version
         id: meta
         run: |
-          VERSION=$(mvn -q -Dexec.executable=echo -Dexec.args='${project.version}' --non-recursive exec:exec)
+          VERSION=$(grep -m 1 '<version>' pom.xml | sed -E 's|.*<version>([^<]+)</version>.*|\1|')
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "Built version: $VERSION"
 
